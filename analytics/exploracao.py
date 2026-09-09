@@ -1,10 +1,7 @@
 # %%
 import pandas as pd
-import numpy as np
 
-print("Python está funcionando!")
-print("Pandas:", pd.__version__)
-print("NumPy:", np.__version__)
+import numpy as np
 
 # %%
 
@@ -155,9 +152,6 @@ exchange_rates["Date"] = pd.to_datetime(exchange_rates["Date"], format="%m/%d/%Y
 
 # %%
 
-print("Delivery Date nulos:", sales["Delivery Date"].isna().sum())
-
-
 print("Total de vendas:", len(sales))
 print("Delivery Date nulos:", sales["Delivery Date"].isna().sum())
 # %%
@@ -182,7 +176,6 @@ print(delivery_nulos[["Order Number", "Order Date", "Delivery Date", "StoreKey"]
 # %%
 
 stores.sort_values("StoreKey").head(10)
-stores.sort_values("StoreKey").tail(10)
 
 # %%
 
@@ -280,8 +273,64 @@ print("Produtos com preço menor que o custo:", len(preco_abaixo_custo))
 
 # %%
 
-preco_abaixo_custo = products[
+preco_igual_custo = products[
     products["Unit Price USD"] == products["Unit Cost USD"]
 ]
 
-print("Produtos com preço igual ao custo:", len(preco_abaixo_custo))
+print("Produtos com preço igual ao custo:", len(preco_igual_custo))
+# %%
+
+sales[["Order Date", "Delivery Date"]].dtypes
+# %%
+sales["Order Date"] = pd.to_datetime(sales["Order Date"], errors="coerce")
+
+# %%
+print(sales["Order Date"].dtype)
+print("Datas nulas:", sales["Order Number"].isna().sum())
+# %%
+stores["Open Date"] = pd.to_datetime(stores["Open Date"], errors="coerce")
+
+# %%
+print(stores["Open Date"].dtype)
+print("Datas nulas:", stores["Open Date"].isna().sum())
+
+# %%
+
+customers["Birthday"] = pd.to_datetime(customers["Birthday"], errors="coerce")
+
+#%%
+
+print(customers["Birthday"].dtype)
+print("Datas nulas:", customers["Birthday"].isna().sum())
+
+# %%
+
+exchange_rates["Date"] = pd.to_datetime(exchange_rates["Date"], errors="coerce")
+
+#%%
+
+print(exchange_rates["Date"].dtype)
+print("Datas nulas:", exchange_rates["Date"].isna().sum())
+
+# %%
+print(products["Unit Cost USD"].head())
+print(products["Unit Price USD"].head())
+
+# %%
+print(sales["Currency Code"].value_counts())
+
+# %%
+
+exchange_rates.head()
+
+# %%
+
+exchange_rates["Currency"].value_counts()
+
+# %%
+
+duplicados_cambio = exchange_rates.duplicated(
+    subset=["Date", "Currency"]
+).sum()
+
+print("Duplicidades de data + moeda:", duplicados_cambio)
