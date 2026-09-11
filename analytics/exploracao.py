@@ -1,8 +1,6 @@
 # %%
 import pandas as pd
 
-import numpy as np
-
 # %%
 
 data_dictionary = pd.read_csv("../data/dados_brutos/Data_Dictionary.csv")
