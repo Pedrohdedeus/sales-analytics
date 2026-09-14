@@ -1,5 +1,6 @@
 # %%
 import pandas as pd
+from matplotlib.ticker import FuncFormatter
 # %%
 
 base = pd.read_csv("../data/dados_processados/base_analitica.csv",
@@ -302,6 +303,7 @@ analise_produtos.head()
 # %%
 
 analise_produtos["Margem %"] = (
+
     analise_produtos["Lucro USD"] / analise_produtos["Receita USD"]
 ) * 100
 
@@ -600,3 +602,144 @@ print(f"Receita média por cliente Recorrente: {receita_media_recorrente:,.2f}")
 vezes_maior_recorrente = receita_media_recorrente / receita_media_compra_unica
 
 print(f"Cliente recorrente gera {vezes_maior_recorrente:.2f}x mais receita")
+
+# %%
+
+receita_por_ano = (
+    base
+    .groupby("Ano")["Receita USD"]
+    .sum()
+)
+
+print(receita_por_ano)
+# %%
+
+
+def formatar_milhoes(x, pos):
+    return f"US$ {x / 1_000_000:.0f} mi"
+
+grafico_receita_por_ano = receita_por_ano.plot(
+    kind="bar",
+    figsize=(10, 5),
+    title="Receita por Ano",
+    xlabel="Ano",
+    ylabel="Receita"
+)
+
+grafico_receita_por_ano.yaxis.set_major_formatter(FuncFormatter(formatar_milhoes))
+
+plt.savefig("../visualizacoes/receita_por_ano.png", bbox_inches="tight")
+
+plt.show()
+
+# %%
+
+comparacao_canal_grafico = (
+    base[base["Ano"].isin([2019, 2020])]
+    .groupby(["Canal", "Ano"])["Receita USD"]
+    .sum()
+    .unstack()
+)
+
+print(comparacao_canal_grafico)
+
+
+# %%
+
+comparacao_canal_grafico = comparacao_canal_grafico.plot(
+    kind="bar",
+    figsize=(10, 5),
+    title="Receita por Canal — 2019 vs 2020",
+    xlabel="Canal",
+    ylabel="Receita"
+)
+
+comparacao_canal_grafico.yaxis.set_major_formatter(FuncFormatter(formatar_milhoes))
+
+plt.xticks(rotation=0)
+plt.legend(title="Ano")
+
+plt.savefig("../visualizacoes/comparacao_canal_2019_2020.png", bbox_inches="tight")
+
+plt.show()
+
+
+
+
+# %%
+grafico_receita_categoria = receita_categoria.plot(
+    kind="barh",
+    figsize=(10, 6),
+    title="Receita por Categoria",
+    xlabel="Receita"
+)
+
+grafico_receita_categoria.xaxis.set_major_formatter(FuncFormatter(formatar_milhoes))
+
+plt.savefig("../visualizacoes/receita_categoria.png", bbox_inches="tight")
+
+plt.show()
+
+
+# %%
+
+grafico_receita_por_pais = receita_por_pais.plot(
+    kind="barh",
+    figsize=(10, 6),
+    title="Receita por País",
+    xlabel="Receita",
+    ylabel="País do Cliente"
+)
+
+grafico_receita_por_pais.xaxis.set_major_formatter(FuncFormatter(formatar_milhoes))
+
+plt.savefig("../visualizacoes/receita_pais.png", bbox_inches="tight")
+
+plt.show()
+
+
+# %%
+
+grafico_receita_tipo_cliente = receita_tipo_cliente.plot(
+    kind="bar",
+    figsize=(8, 5),
+    title="Receita por Tipo de Cliente",
+    xlabel="Tipo de Cliente",
+    ylabel="Receita"
+)
+
+grafico_receita_tipo_cliente.yaxis.set_major_formatter(FuncFormatter(formatar_milhoes))
+
+plt.xticks(rotation=0)
+
+for i, valor in enumerate(receita_tipo_cliente):
+    percentual = pct_receita_tipo_cliente.iloc[i]
+    grafico_receita_tipo_cliente.text(
+        i,
+        valor,
+        f"{percentual:.1f}%",
+        ha="center",
+        va="bottom"
+    )
+
+plt.savefig("../visualizacoes/receita_tipo_cliente.png", bbox_inches="tight")
+
+plt.show()
+
+
+# %%
+grafico_top_10_produtos = top10_receita_produto.plot(
+    kind="barh",
+    figsize=(10, 6),
+    title="Top 10 Produtos por Receita",
+    xlabel="Receita"
+)
+
+grafico_top_10_produtos.xaxis.set_major_formatter(FuncFormatter(formatar_milhoes))
+
+plt.savefig("../visualizacoes/top_10_produtos_por_receita.png", bbox_inches="tight")
+
+plt.show()
+
+
+# %%
