@@ -165,7 +165,7 @@ Os Estados Unidos apresentaram:
 
 ### Gráfico
 
-![Receita por Tipo de Cliente](visualizacoes/receita_tipo_cliente.png)
+![Receita por País](visualizacoes/receita_pais.png)
 
 > **Insight:** Os Estados Unidos representam mais da metade da receita total e apresentam a maior frequência média de compra. A maior receita por cliente está associada principalmente à frequência de compra, e não ao maior ticket médio.
 
@@ -202,7 +202,7 @@ A análise classificou os clientes de acordo com o número de pedidos realizados
 
 ### Gráfico
 
-![Receita por Tipo de Cliente](visualizacoes/receita_pais.png)
+![Receita por Tipo de Cliente](visualizacoes/receita_tipo_cliente.png)
 
 A receita média por cliente foi:
 
@@ -210,6 +210,22 @@ A receita média por cliente foi:
 - **Compra única:** US$ 2.127,71.
 
 > **Insight:** Clientes recorrentes representam 61,18% da base, mas são responsáveis por 82,39% da receita. Em média, um cliente recorrente gera aproximadamente **2,97 vezes mais receita** que um cliente de compra única.
+
+---
+
+# 📊 Dashboard
+
+O projeto também conta com um dashboard desenvolvido em **Streamlit**, criado para apresentar de forma visual os principais resultados encontrados durante a análise.
+
+O dashboard reúne indicadores e visualizações sobre:
+
+- Evolução da receita;
+- Desempenho dos canais físico e online;
+- Receita por categoria;
+- Receita por país;
+- Comportamento dos clientes;
+- Top 10 produtos por receita;
+- Principais insights da análise.
 
 ---
 
@@ -270,6 +286,7 @@ Dessa forma, o projeto demonstra que a análise de dados vai além da criação 
 - Pandas
 - NumPy
 - Matplotlib
+- Streamlit
 - SQL
 - Git
 - GitHub
@@ -280,9 +297,6 @@ Dessa forma, o projeto demonstra que a análise de dados vai além da criação 
 
 ```text
 sales-analytics/
-│
-├── .vscode/
-│   └── settings.json
 │
 ├── analytics/
 │   ├── analise.py
@@ -311,4 +325,7 @@ sales-analytics/
 │   └── top_10_produtos_por_receita.png
 │
 ├── .gitattributes
+├── .gitignore
+├── dashboard.py
 └── README.md
+├── requirements.txt
