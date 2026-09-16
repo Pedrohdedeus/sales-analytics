@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PedroTec — Dashboard de Vendas 2016–2020</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F2F4F8;
+    --surface:#FFFFFF;
+    --surface-2:#E9ECF2;
+    --ink:#0F1720;
+    --ink-soft:#57607A;
+    --accent:#FF5A2B;
+    --accent-ink:#B23A16;
+    --accent-soft:#FFE3D4;
+    --positive:#0E9F6E;
+    --positive-soft:#DCF5EC;
+    --negative:#E0432B;
+    --negative-soft:#FCE1DC;
+    --line:#D9DEE8;
+    --radius: 4px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D1117; --surface:#151B23; --surface-2:#1C232D;
+      --ink:#E9EDF4; --ink-soft:#9AA5B8; --accent:#FF7A45; --accent-ink:#FFB08A;
+      --accent-soft:#3A2013; --positive:#34D399; --positive-soft:#123329;
+      --negative:#FF6B5E; --negative-soft:#3A1712; --line:#2A313C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D1117; --surface:#151B23; --surface-2:#1C232D;
+    --ink:#E9EDF4; --ink-soft:#9AA5B8; --accent:#FF7A45; --accent-ink:#FFB08A;
+    --accent-soft:#3A2013; --positive:#34D399; --positive-soft:#123329;
+    --negative:#FF6B5E; --negative-soft:#3A1712; --line:#2A313C;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Inter', system-ui, -apple-system, sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', system-ui, sans-serif; font-weight:600; letter-spacing:-0.01em; margin:0; color:var(--ink); }
+  .mono{ font-family:'IBM Plex Mono', ui-monospace, monospace; }
+  a{color:inherit;}
+  img,canvas{max-width:100%;}
+  ::selection{background:var(--accent-soft); color:var(--accent-ink);}
+
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 28px; }
+  section{padding:72px 0;}
+  @media (max-width:720px){ section{padding:52px 0;} .wrap{padding:0 20px;} }
+
+  .kicker{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--accent);
+    display:flex; align-items:center; gap:8px; margin-bottom:12px;
+  }
+  .kicker::before{ content:""; width:14px; height:2px; background:var(--accent); display:inline-block; }
+
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1120px; margin:0 auto; padding:0 28px;
+    display:flex; align-items:center; justify-content:space-between; height:58px; gap:24px;
+  }
+  .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:17px; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .brand .dot{ width:9px;height:9px;background:var(--accent);border-radius:2px; transform:rotate(45deg); flex-shrink:0; }
+  .navlinks{ display:flex; gap:20px; overflow-x:auto; font-size:13px; color:var(--ink-soft); scrollbar-width:none; }
+  .navlinks::-webkit-scrollbar{display:none;}
+  .navlinks a{ text-decoration:none; white-space:nowrap; padding:6px 0; border-bottom:2px solid transparent; transition:color .15s, border-color .15s; }
+  .navlinks a:hover{color:var(--ink); border-color:var(--accent);}
+  .navcta{
+    flex-shrink:0; font-size:12.5px; font-family:'IBM Plex Mono';
+    border:1px solid var(--line); border-radius:var(--radius); padding:7px 12px;
+    text-decoration:none; color:var(--ink); white-space:nowrap;
+  }
+  .navcta:hover{border-color:var(--accent); color:var(--accent-ink);}
+
+  .hero{ padding:64px 0 48px; border-bottom:1px solid var(--line); }
+  .hero-grid{ display:grid; grid-template-columns:1.15fr 0.85fr; gap:48px; align-items:end; }
+  @media (max-width:860px){ .hero-grid{grid-template-columns:1fr;} }
+  .hero h1{ font-size:clamp(28px, 4vw, 42px); line-height:1.12; }
+  .hero-sub{ margin-top:14px; font-size:15.5px; color:var(--ink-soft); max-width:520px; }
+  .hero-tag{
+    display:inline-block; margin-top:18px; font-family:'IBM Plex Mono'; font-size:12px;
+    color:var(--ink-soft); border:1px solid var(--line); border-radius:20px; padding:5px 12px;
+  }
+  .hero-figure{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px; }
+  .hero-figure .big{ font-family:'IBM Plex Mono'; font-weight:600; font-size:38px; color:var(--accent-ink); line-height:1; }
+  .hero-figure .label{ font-size:12.5px; color:var(--ink-soft); margin-top:6px; }
+  .hero-figure canvas{margin-top:16px; height:110px !important;}
+
+  .kpi-grid{
+    display:grid; grid-template-columns:repeat(6,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+  }
+  @media (max-width:920px){ .kpi-grid{grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:560px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+  .kpi{ background:var(--surface); padding:20px 16px; }
+  .kpi .v{ font-family:'IBM Plex Mono'; font-weight:600; font-size:21px; color:var(--ink); }
+  .kpi .l{ font-size:12px; color:var(--ink-soft); margin-top:6px; }
+
+  .chapter-head{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:24px; flex-wrap:wrap;
+    border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:32px;
+  }
+  .chapter-head h2{ font-size:clamp(21px,2.6vw,27px); }
+  .chapter-num{ font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--ink-soft); }
+
+  .panel{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; }
+  .panel .panel-title{ font-size:13px; color:var(--ink-soft); margin-bottom:14px; font-family:'IBM Plex Mono'; }
+  .grid-2{ display:grid; grid-template-columns:1.3fr 0.7fr; gap:20px; }
+  @media (max-width:860px){ .grid-2{grid-template-columns:1fr;} }
+  .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:860px){ .grid-3{grid-template-columns:1fr;} }
+
+  .chart-box{ position:relative; height:300px; }
+  .chart-box.tall{height:360px;}
+  .chart-box.short{height:210px;}
+
+  .delta{ display:inline-flex; align-items:center; gap:5px; font-family:'IBM Plex Mono'; font-size:12px; padding:2px 8px; border-radius:20px; }
+  .delta.up{ color:var(--positive); background:var(--positive-soft); }
+  .delta.down{ color:var(--negative); background:var(--negative-soft); }
+
+  .diag-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media (max-width:860px){ .diag-grid{grid-template-columns:repeat(2,1fr);} }
+  .diag-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px; }
+  .diag-card .label{ font-size:12px; color:var(--ink-soft); }
+  .diag-card .row{ display:flex; align-items:baseline; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .diag-card .val{ font-family:'IBM Plex Mono'; font-weight:600; font-size:19px; }
+  .diag-card .from{ font-size:11.5px; color:var(--ink-soft); margin-top:4px; font-family:'IBM Plex Mono'; }
+
+  .formula{
+    font-family:'IBM Plex Mono'; font-size:15px; text-align:center; padding:16px;
+    border:1px dashed var(--line); border-radius:var(--radius); margin-top:20px; color:var(--ink-soft);
+  }
+  .formula b{color:var(--ink);}
+
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th,td{ text-align:left; padding:9px 8px; border-bottom:1px solid var(--line); }
+  th{ font-family:'IBM Plex Mono'; font-weight:500; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); }
+  td.num, th.num{ text-align:right; font-family:'IBM Plex Mono'; }
+
+  footer{ border-top:1px solid var(--line); padding:48px 0 36px; }
+  .foot-grid{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:32px; }
+  @media (max-width:720px){ .foot-grid{grid-template-columns:1fr; gap:26px;} }
+  footer h3{font-size:13.5px; margin-bottom:10px;}
+  footer p, footer li{ color:var(--ink-soft); font-size:13.5px; }
+  footer ul{list-style:none; padding:0; margin:0; display:grid; gap:8px;}
+  .ai-note{
+    margin-top:16px; font-size:12.5px; color:var(--ink-soft); border-left:2px solid var(--accent);
+    padding-left:12px;
+  }
+  .foot-bottom{
+    margin-top:36px; padding-top:20px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono';
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; background:var(--ink); color:var(--bg);
+    text-decoration:none; padding:10px 16px; border-radius:var(--radius); font-size:13.5px; font-weight:500;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand"><span class="dot"></span>PedroTec</div>
+    <div class="navlinks">
+      <a href="#visao-geral">Visão geral</a>
+      <a href="#crescimento">Crescimento</a>
+      <a href="#2020">2020</a>
+      <a href="#diagnostico">Diagnóstico</a>
+      <a href="#categorias">Categorias</a>
+      <a href="#geografia">Geografia</a>
+      <a href="#clientes">Clientes</a>
+    </div>
+    <a class="navcta" href="https://github.com/Pedrohdedeus/sales-analytics" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker">DASHBOARD DE VENDAS · 2016–2020</div>
+      <h1>PedroTec</h1>
+      <p class="hero-sub">Rede de varejo de eletrônicos — 58 lojas em 8 países, mais canal online. Painel com os indicadores e gráficos gerados a partir da base analítica do projeto.</p>
+      <span class="hero-tag">projeto de estudo fictício</span>
+    </div>
+    <div class="hero-figure">
+      <div class="label">Receita anual — 2016 a 2020</div>
+      <div class="big" id="heroBig">US$ 55,76 mi</div>
+      <div class="label">faturamento total do período</div>
+      <div class="chart-box short"><canvas id="heroChart"></canvas></div>
+    </div>
+  </div>
+</header>
+
+<section id="visao-geral">
+  <div class="wrap">
+    <div class="chapter-head">
+      <h2>Visão geral</h2>
+      <div class="chapter-num">2016 — 2020</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="v">US$ 55,76 mi</div><div class="l">Receita total</div></div>
+      <div class="kpi"><div class="v">US$ 32,66 mi</div><div class="l">Lucro total</div></div>
+      <div class="kpi"><div class="v">58,58%</div><div class="l">Margem média</div></div>
+      <div class="kpi"><div class="v">26.326</div><div class="l">Pedidos</div></div>
+      <div class="kpi"><div class="v">11.887</div><div class="l">Clientes únicos</div></div>
+      <div class="kpi"><div class="v">US$ 2.117,89</div><div class="l">Ticket médio</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="crescimento" style="background:var(--surface-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="chapter-head">
+      <h2>Receita por ano</h2>
+      <div class="chapter-num">2016 → 2020</div>
+    </div>
+    <div class="panel">
+      <div class="chart-box tall"><canvas id="revenueYearChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<section id="2020">
+  <div class="wrap">
+    <div class="chapter-head">
+      <h2>2019 vs. 2020</h2>
+      <div class="chapter-num">receita mensal e por canal</div>
+    </div>
+    <div class="panel" style="margin-bottom:20px;">
+      <div class="panel-title">RECEITA MENSAL</div>
+      <div class="chart-box tall"><canvas id="monthlyChart"></canvas></div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">RECEITA POR CANAL</div>
+        <div class="chart-box"><canvas id="channelChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">VARIAÇÃO 2019 → 2020</div>
+        <table>
+          <thead><tr><th>Canal</th><th class="num">Var.</th></tr></thead>
+          <tbody>
+            <tr><td>Loja física</td><td class="num" style="color:var(--negative)">-49,7%</td></tr>
+            <tr><td>Online</td><td class="num" style="color:var(--negative)">-47,0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="diagnostico" style="background:var(--surface-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="chapter-head">
+      <h2>Diagnóstico da queda</h2>
+      <div class="chapter-num">9.083 → 4.635 pedidos</div>
+    </div>
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="label">Clientes ativos</div>
+        <div class="row"><span class="val">3.868</span><span class="delta down">↓ 40,5%</span></div>
+        <div class="from">2019: 6.497</div>
+      </div>
+      <div class="diag-card">
+        <div class="label">Pedidos por cliente</div>
+        <div class="row"><span class="val">1,20</span><span class="delta down">↓ 14,3%</span></div>
+        <div class="from">2019: 1,40</div>
+      </div>
+      <div class="diag-card">
+        <div class="label">Ticket médio</div>
+        <div class="row"><span class="val">US$ 2.005</span><span class="delta down">↓ 0,3%</span></div>
+        <div class="from">2019: US$ 2.011</div>
+      </div>
+      <div class="diag-card">
+        <div class="label">Itens por pedido</div>
+        <div class="row"><span class="val">7,44</span><span class="delta down">↓ 1,3%</span></div>
+        <div class="from">2019: 7,53</div>
+      </div>
+    </div>
+    <div class="formula">Pedidos = <b>Clientes ativos</b> × <b>Pedidos por cliente</b></div>
+  </div>
+</section>
+
+<section id="categorias">
+  <div class="wrap">
+    <div class="chapter-head">
+      <h2>Categorias e produtos</h2>
+      <div class="chapter-num">8 categorias</div>
+    </div>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="panel">
+        <div class="panel-title">RECEITA POR CATEGORIA</div>
+        <div class="chart-box tall"><canvas id="categoryChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">MARGEM POR CATEGORIA</div>
+        <div class="chart-box tall"><canvas id="marginChart"></canvas></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">TOP 10 PRODUTOS POR RECEITA</div>
+      <div class="chart-box tall"><canvas id="productsChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<section id="geografia" style="background:var(--surface-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="chapter-head">
+      <h2>Geografia</h2>
+      <div class="chapter-num">8 países</div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">RECEITA POR PAÍS</div>
+        <div class="chart-box tall"><canvas id="countryChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">INDICADORES POR PAÍS</div>
+        <table>
+          <thead><tr><th>País</th><th class="num">Ticket</th><th class="num">Ped./cliente</th></tr></thead>
+          <tbody id="countryTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="clientes">
+  <div class="wrap">
+    <div class="chapter-head">
+      <h2>Clientes</h2>
+      <div class="chapter-num">11.887 clientes</div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">RECEITA POR TIPO DE CLIENTE</div>
+        <div class="chart-box"><canvas id="customerDonut"></canvas></div>
+      </div>
+      <div class="diag-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="diag-card">
+          <div class="label">Receita média — recorrente</div>
+          <div class="row"><span class="val">US$ 6.316,84</span></div>
+        </div>
+        <div class="diag-card">
+          <div class="label">Receita média — compra única</div>
+          <div class="row"><span class="val">US$ 2.127,71</span></div>
+        </div>
+        <div class="diag-card">
+          <div class="label">Receita — top 10 clientes</div>
+          <div class="row"><span class="val">0,76%</span></div>
+        </div>
+        <div class="diag-card">
+          <div class="label">Receita — top 10% clientes</div>
+          <div class="row"><span class="val">35,96%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h3>Sobre o projeto</h3>
+        <p>Análise de vendas da PedroTec, uma empresa fictícia do ramo de varejo de produtos eletrônicos, criada para fins de estudo. O objetivo foi entender o desempenho comercial ao longo do período analisado e identificar padrões em receita, pedidos, produtos, categorias, canais de venda e comportamento de compra.</p>
+        <div class="ai-note">Após a realização do estudo, foi utilizada IA generativa — o Claude — como apoio para gerar a visualização dos indicadores.</div>
+      </div>
+      <div>
+        <h3>Tecnologias</h3>
+        <ul>
+          <li>Python · Pandas · NumPy</li>
+          <li>Matplotlib</li>
+          <li>Git & GitHub</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Links</h3>
+        <ul>
+          <li><a href="https://github.com/Pedrohdedeus/sales-analytics" target="_blank" rel="noopener" style="text-decoration:underline;">Código no GitHub ↗</a></li>
+        </ul>
+        <a class="btn" style="margin-top:16px;" href="https://github.com/Pedrohdedeus/sales-analytics" target="_blank" rel="noopener">Ver repositório</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>PedroTec — projeto de estudo fictício</span>
+      <span>Dados: 2016 – 2020</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const css = getComputedStyle(document.documentElement);
+  const ink = css.getPropertyValue('--ink').trim();
+  const inkSoft = css.getPropertyValue('--ink-soft').trim();
+  const accent = css.getPropertyValue('--accent').trim();
+  const line = css.getPropertyValue('--line').trim();
+  const negative = css.getPropertyValue('--negative').trim();
+
+  Chart.defaults.font.family = "'IBM Plex Mono', ui-monospace, monospace";
+  Chart.defaults.font.size = 11.5;
+  Chart.defaults.color = inkSoft;
+
+  function fmtMi(v){ return 'US$ ' + (v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' mi'; }
+  function fmtUSD(v){ return 'US$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+  const gridOpt = { color: line, drawTicks:false };
+
+  const revenueByYear = {2016:6946793.56,2017:7421422.27,2018:12788960.66,2019:18264382.48,2020:9294632.14};
+  const years = Object.keys(revenueByYear);
+  const revenueVals = Object.values(revenueByYear);
+
+  const monthly2019 = [1940899.57,2102862.57,845925.09,149892.71,1594446.47,1404861.40,1408714.62,1500784.77,1547870.73,1575168.82,1715659.88,2477295.85];
+  const monthly2020 = [2068951.12,2227379.57,674990.66,217642.10,878026.63,763883.23,512805.18,416647.08,380431.52,245647.59,256701.02,651526.44];
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  const channel = { labels: ['Loja física','Online'], y2019: [14355886.78, 3908495.70], y2020: [7224681.24, 2069950.90] };
+
+  const categories = [
+    ['Computers',19301595.46], ['Home Appliances',10795478.59], ['Cameras and camcorders',6520168.02],
+    ['Cell phones',6183791.22], ['TV and Video',5928982.69], ['Audio',3169627.74],
+    ['Music, Movies and Audio Books',3131006.44], ['Games and Toys',724829.43]
+  ];
+  const margins = [
+    ['Music, Movies and Audio Books',60.98], ['Cameras and camcorders',60.12], ['TV and Video',59.65],
+    ['Computers',58.43], ['Home Appliances',58.32], ['Audio',57.67], ['Cell phones',56.58], ['Games and Toys',54.73]
+  ];
+  const products = [
+    ['WWI Desktop PC2.33 X2330 · Black',505450], ['AW Desktop PC2.33 XD233 · Silver',466089],
+    ['AW Desktop PC2.33 XD233 · Brown',464151], ['AW Desktop PC2.33 XD233 · Black',447678],
+    ['AW Desktop PC2.33 XD233 · White',437019], ['WWI Desktop PC2.33 X2330 · White',424578],
+    ['WWI Desktop PC2.33 X2330 · Brown',422740], ['AW 52" LCD HDTV X590 · White',394398.64],
+    ['AW 52" LCD HDTV X590 · Black',374098.71], ['WWI Desktop PC2.33 X2330 · Silver',360248]
+  ];
+  const countries = [
+    ['United States',29871631.17,5706,2100.53,2.49], ['United Kingdom',7084088.12,1570,2070.77,2.18],
+    ['Germany',5414149.80,1150,2218.91,2.12], ['Canada',4724334.63,1179,2071.17,1.93],
+    ['Australia',2708137.61,780,2291.15,1.52], ['Italy',2475645.77,530,2248.54,2.08],
+    ['Netherlands',1962154.27,534,2010.40,1.83], ['France',1515338.22,438,2152.47,1.61]
+  ];
+
+  new Chart(document.getElementById('heroChart'), {
+    type:'bar',
+    data:{ labels:years, datasets:[{ data:revenueVals, backgroundColor: years.map(y=> y==='2020' ? negative : accent), borderRadius:2, maxBarThickness:26 }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtMi(c.raw)}} },
+      scales:{ x:{ grid:{display:false}, ticks:{color:inkSoft} }, y:{ display:false } } }
+  });
+
+  new Chart(document.getElementById('revenueYearChart'), {
+    type:'bar',
+    data:{ labels:years, datasets:[{ label:'Receita', data:revenueVals, backgroundColor: years.map(y=> y==='2020' ? negative : accent), borderRadius:3, maxBarThickness:64 }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtMi(c.raw)}} },
+      scales:{ x:{ grid:{display:false}, ticks:{color:ink, font:{size:13}} },
+        y:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1e6)+'mi', color:inkSoft } } } }
+  });
+
+  new Chart(document.getElementById('monthlyChart'), {
+    type:'line',
+    data:{ labels: months, datasets:[
+      { label:'2019', data:monthly2019, borderColor:ink, backgroundColor:'transparent', borderWidth:2, tension:0.3, pointRadius:3 },
+      { label:'2020', data:monthly2020, borderColor:accent, backgroundColor:'transparent', borderWidth:2, tension:0.3, pointRadius:3 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'top', align:'end', labels:{color:inkSoft, boxWidth:14}}, tooltip:{callbacks:{label:(c)=>c.dataset.label+': '+fmtMi(c.raw)}} },
+      scales:{ x:{ grid:{display:false}, ticks:{color:inkSoft} },
+        y:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1e6).toFixed(1)+'mi', color:inkSoft } } } }
+  });
+
+  new Chart(document.getElementById('channelChart'), {
+    type:'bar',
+    data:{ labels: channel.labels, datasets:[
+      { label:'2019', data:channel.y2019, backgroundColor:ink, borderRadius:3, maxBarThickness:40 },
+      { label:'2020', data:channel.y2020, backgroundColor:accent, borderRadius:3, maxBarThickness:40 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'top', align:'end', labels:{color:inkSoft, boxWidth:14}}, tooltip:{callbacks:{label:(c)=>c.dataset.label+': '+fmtMi(c.raw)}} },
+      scales:{ x:{ grid:{display:false}, ticks:{color:ink} },
+        y:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1e6)+'mi', color:inkSoft } } } }
+  });
+
+  new Chart(document.getElementById('categoryChart'), {
+    type:'bar',
+    data:{ labels: categories.map(c=>c[0]), datasets:[{ data: categories.map(c=>c[1]), backgroundColor:accent, borderRadius:3, maxBarThickness:22 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtMi(c.raw)}} },
+      scales:{ x:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1e6)+'mi', color:inkSoft } },
+        y:{ grid:{display:false}, ticks:{color:ink, font:{size:11.5}} } } }
+  });
+
+  new Chart(document.getElementById('marginChart'), {
+    type:'bar',
+    data:{ labels: margins.map(c=>c[0]), datasets:[{ data: margins.map(c=>c[1]), backgroundColor: ink, borderRadius:3, maxBarThickness:18 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>c.raw.toFixed(1)+'%'}} },
+      scales:{ x:{ grid:gridOpt, ticks:{ callback:(v)=>v+'%', color:inkSoft }, min:0, max:70 },
+        y:{ grid:{display:false}, ticks:{color:ink, font:{size:10.5}} } } }
+  });
+
+  new Chart(document.getElementById('productsChart'), {
+    type:'bar',
+    data:{ labels: products.map(p=>p[0]), datasets:[{ data: products.map(p=>p[1]), backgroundColor:accent, borderRadius:3, maxBarThickness:20 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtUSD(c.raw)}} },
+      scales:{ x:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1000)+'k', color:inkSoft } },
+        y:{ grid:{display:false}, ticks:{color:ink, font:{size:10.5}} } } }
+  });
+
+  new Chart(document.getElementById('countryChart'), {
+    type:'bar',
+    data:{ labels: countries.map(c=>c[0]), datasets:[{ data: countries.map(c=>c[1]), backgroundColor:accent, borderRadius:3, maxBarThickness:22 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtMi(c.raw)}} },
+      scales:{ x:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1e6)+'mi', color:inkSoft } },
+        y:{ grid:{display:false}, ticks:{color:ink, font:{size:11.5}} } } }
+  });
+
+  const tbody = document.getElementById('countryTableBody');
+  countries.forEach(([name, rev, cust, ticket, opc])=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${name}</td><td class="num">${fmtUSD(ticket)}</td><td class="num">${opc.toFixed(2)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  new Chart(document.getElementById('customerDonut'), {
+    type:'doughnut',
+    data:{ labels:['Recorrentes (82,4%)','Compra única (17,6%)'], datasets:[{ data:[45936077.39, 9819402.20], backgroundColor:[accent, line], borderWidth:0 }]},
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'68%',
+      plugins:{ legend:{position:'bottom', labels:{color:inkSoft, boxWidth:12, padding:16}}, tooltip:{callbacks:{label:(c)=>fmtMi(c.raw)}} } }
+  });
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,4 +1,7 @@
 pandas
 numpy
 matplotlib
-streamlit
+HTML 
+CSS  
+JavaScript 
+Chart.js

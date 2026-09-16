@@ -1,8 +1,10 @@
-# Sales Analytics
+# Sales Analytics — PedroTec
+
+> **PedroTec** é uma empresa fictícia, criada para fins de estudo, com o objetivo de dar contexto de negócio real a esta análise.
 
 ## 🎯 Objetivo
 
-Este projeto tem como objetivo analisar os dados de vendas de uma rede de lojas, buscando entender o desempenho comercial ao longo do período analisado e identificar padrões relacionados à receita, pedidos, produtos, categorias, canais de venda, localização dos clientes e comportamento de compra.
+Este projeto tem como objetivo analisar os dados de vendas da **PedroTec**, uma empresa do ramo de varejo que vende produtos eletrônicos, buscando entender o desempenho comercial ao longo do período analisado e identificar padrões relacionados à receita, pedidos, produtos, categorias, canais de venda, localização dos clientes e comportamento de compra.
 
 A análise foi desenvolvida utilizando Python e Pandas, com foco na exploração dos dados, criação de métricas, identificação de padrões e transformação dos resultados em insights que possam apoiar a tomada de decisões de negócio.
 
@@ -10,7 +12,7 @@ A análise foi desenvolvida utilizando Python e Pandas, com foco na exploração
 
 ## 📊 Sobre os dados
 
-O projeto utiliza dados relacionados às operações de vendas de uma rede de lojas.
+O projeto utiliza dados relacionados às operações de vendas da PedroTec.
 
 Foram utilizadas diferentes fontes de dados:
 
@@ -215,17 +217,23 @@ A receita média por cliente foi:
 
 # 📊 Dashboard
 
-O projeto também conta com um dashboard desenvolvido em **Streamlit**, criado para apresentar de forma visual os principais resultados encontrados durante a análise.
+O projeto também conta com um dashboard interativo, construído em **HTML, CSS e JavaScript** (com a biblioteca Chart.js), criado para apresentar de forma visual os principais resultados encontrados durante a análise.
 
-O dashboard reúne indicadores e visualizações sobre:
+🔗 **[Acessar o dashboard](https://claude.ai/artifact/WN5kEG2zkHHwBipvMBFbDR)**
 
-- Evolução da receita;
-- Desempenho dos canais físico e online;
-- Receita por categoria;
-- Receita por país;
-- Comportamento dos clientes;
+O dashboard reúne KPIs e visualizações sobre:
+
+- Evolução da receita (2016–2020);
+- Receita mensal e por canal (2019 vs. 2020);
+- Diagnóstico da queda de pedidos em 2020;
+- Receita e margem por categoria;
 - Top 10 produtos por receita;
-- Principais insights da análise.
+- Receita por país;
+- Receita por tipo de cliente (recorrente vs. compra única).
+
+As conclusões e o passo a passo da investigação por trás de cada gráfico estão documentados nas seções abaixo deste README — o dashboard foi feito para ser consultado como um painel de indicadores, sem repetir esse texto.
+
+> Após a realização do estudo, foi utilizada IA generativa — o **Claude** — como apoio para gerar a visualização dos indicadores do dashboard.
 
 ---
 
@@ -286,8 +294,8 @@ Dessa forma, o projeto demonstra que a análise de dados vai além da criação 
 - Pandas
 - NumPy
 - Matplotlib
-- Streamlit
-- SQL
+- HTML, CSS & JavaScript (dashboard)
+- Chart.js
 - Git
 - GitHub
 
@@ -323,9 +331,9 @@ sales-analytics/
 │   ├── receita_por_ano.png
 │   ├── receita_tipo_cliente.png
 │   └── top_10_produtos_por_receita.png
-│
+│  
 ├── .gitattributes
 ├── .gitignore
-├── dashboard.py
-└── README.md
-├── requirements.txt
+├── dashboard.html
+├── README.md
+└── requirements.txt
