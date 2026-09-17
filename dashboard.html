@@ -25,14 +25,6 @@
     --line:#D9DEE8;
     --radius: 4px;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#0D1117; --surface:#151B23; --surface-2:#1C232D;
-      --ink:#E9EDF4; --ink-soft:#9AA5B8; --accent:#FF7A45; --accent-ink:#FFB08A;
-      --accent-soft:#3A2013; --positive:#34D399; --positive-soft:#123329;
-      --negative:#FF6B5E; --negative-soft:#3A1712; --line:#2A313C;
-    }
-  }
   :root[data-theme="dark"]{
     --bg:#0D1117; --surface:#151B23; --surface-2:#1C232D;
     --ink:#E9EDF4; --ink-soft:#9AA5B8; --accent:#FF7A45; --accent-ink:#FFB08A;
@@ -50,7 +42,7 @@
   h1,h2,h3{ font-family:'Space Grotesk', system-ui, sans-serif; font-weight:600; letter-spacing:-0.01em; margin:0; color:var(--ink); }
   .mono{ font-family:'IBM Plex Mono', ui-monospace, monospace; }
   a{color:inherit;}
-  img,canvas{max-width:100%;}
+  img,canvas{max-width:100%; color-scheme: light;}
   ::selection{background:var(--accent-soft); color:var(--accent-ink);}
 
   .wrap{ max-width:1120px; margin:0 auto; padding:0 28px; }
@@ -407,6 +399,22 @@
 
 <script>
 (function(){
+  // Espera as fontes (IBM Plex Mono, Space Grotesk, Inter) carregarem antes de
+  // desenhar os gráficos. Sem isso, o Chart.js mede o texto das legendas e dos
+  // labels do eixo Y com a fonte de fallback, o que causa dois bugs:
+  //  1) a legenda "2020" fica sem espaço no layout e só aparece após um clique
+  //     (que força o Chart.js a recalcular o layout);
+  //  2) o primeiro caractere dos labels do eixo Y (o "U" de "US$") fica cortado.
+  var fontsReady = (document.fonts && document.fonts.ready)
+    ? document.fonts.ready
+    : Promise.resolve();
+  // Failsafe: nunca esperar mais que 1.5s, mesmo se document.fonts.ready travar.
+  Promise.race([
+    fontsReady,
+    new Promise(function(resolve){ setTimeout(resolve, 1500); })
+  ]).then(init);
+
+  function init(){
   const css = getComputedStyle(document.documentElement);
   const ink = css.getPropertyValue('--ink').trim();
   const inkSoft = css.getPropertyValue('--ink-soft').trim();
@@ -467,6 +475,7 @@
     type:'bar',
     data:{ labels:years, datasets:[{ label:'Receita', data:revenueVals, backgroundColor: years.map(y=> y==='2020' ? negative : accent), borderRadius:3, maxBarThickness:64 }]},
     options:{ responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ left:6 } },
       plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtMi(c.raw)}} },
       scales:{ x:{ grid:{display:false}, ticks:{color:ink, font:{size:13}} },
         y:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1e6)+'mi', color:inkSoft } } } }
@@ -475,10 +484,11 @@
   new Chart(document.getElementById('monthlyChart'), {
     type:'line',
     data:{ labels: months, datasets:[
-      { label:'2019', data:monthly2019, borderColor:ink, backgroundColor:'transparent', borderWidth:2, tension:0.3, pointRadius:3 },
-      { label:'2020', data:monthly2020, borderColor:accent, backgroundColor:'transparent', borderWidth:2, tension:0.3, pointRadius:3 }
+      { label:'2019', data:monthly2019, borderColor:ink, backgroundColor:'transparent', borderWidth:2, tension:0.3, pointRadius:3, hidden:false },
+      { label:'2020', data:monthly2020, borderColor:accent, backgroundColor:'transparent', borderWidth:2, tension:0.3, pointRadius:3, hidden:false}
     ]},
     options:{ responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ left:6 } },
       plugins:{ legend:{position:'top', align:'end', labels:{color:inkSoft, boxWidth:14}}, tooltip:{callbacks:{label:(c)=>c.dataset.label+': '+fmtMi(c.raw)}} },
       scales:{ x:{ grid:{display:false}, ticks:{color:inkSoft} },
         y:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1e6).toFixed(1)+'mi', color:inkSoft } } } }
@@ -487,10 +497,11 @@
   new Chart(document.getElementById('channelChart'), {
     type:'bar',
     data:{ labels: channel.labels, datasets:[
-      { label:'2019', data:channel.y2019, backgroundColor:ink, borderRadius:3, maxBarThickness:40 },
-      { label:'2020', data:channel.y2020, backgroundColor:accent, borderRadius:3, maxBarThickness:40 }
+      { label:'2019', data:channel.y2019, backgroundColor:ink, borderRadius:3, maxBarThickness:40, hidden:false },
+      { label:'2020', data:channel.y2020, backgroundColor:accent, borderRadius:3, maxBarThickness:40, hidden:false }
     ]},
     options:{ responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ left:6 } },
       plugins:{ legend:{position:'top', align:'end', labels:{color:inkSoft, boxWidth:14}}, tooltip:{callbacks:{label:(c)=>c.dataset.label+': '+fmtMi(c.raw)}} },
       scales:{ x:{ grid:{display:false}, ticks:{color:ink} },
         y:{ grid:gridOpt, ticks:{ callback:(v)=>'US$ '+(v/1e6)+'mi', color:inkSoft } } } }
@@ -546,6 +557,7 @@
       plugins:{ legend:{position:'bottom', labels:{color:inkSoft, boxWidth:12, padding:16}}, tooltip:{callbacks:{label:(c)=>fmtMi(c.raw)}} } }
   });
 
+  } // fim de init()
 })();
 </script>
 
